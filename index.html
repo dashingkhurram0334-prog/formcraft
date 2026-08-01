@@ -48,17 +48,33 @@
 
   /* PRINT STYLES */
   @media print{
+    @page{margin:12mm;}
     #lockScreen{display:none !important;}
     header, nav, .btn-row, .intro, .updated{display:none !important;}
-    body{background:#fff;}
+    body{background:#fff;font-size:11px;}
     main{padding:0;}
-    .form-card{border:none;padding:0;}
-    h1{font-size:22px;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:10px;}
-    .form-section-title{color:#000;border-top:1px solid #ccc;}
-    input, select{border:none;border-bottom:1px solid #999;border-radius:0;padding:6px 2px;background:transparent;-webkit-print-color-adjust:exact;}
+    .form-card{border:none;padding:0;position:relative;}
+    h1{font-size:18px;margin:0 0 12px;border-bottom:2px solid #000;padding-bottom:6px;padding-right:110px;}
+    .form-section-title{color:#000;border-top:1px solid #ccc;font-size:12px;margin:10px 0 6px;padding-top:6px;}
+    .field{margin-bottom:6px;}
+    label{font-size:9.5px;margin-bottom:2px;}
+    input, select{border:none;border-bottom:1px solid #999;border-radius:0;padding:3px 2px;background:transparent;font-size:11px;-webkit-print-color-adjust:exact;}
+    .row2{gap:8px;}
     input[type="file"]{display:none;}
-    #photoPreview{display:block !important;}
-    #documentsList{display:block !important;color:#000 !important;}
+    #photoPreview{
+      display:block !important;
+      position:absolute;
+      top:0;
+      right:0;
+      width:90px;
+      max-width:90px;
+      height:auto;
+      margin:0;
+      border:1px solid #999;
+    }
+    #documentsList{display:block !important;color:#000 !important;font-size:10px;}
+    #signaturePad{border:none;border-bottom:1px solid #333;height:70px !important;}
+    canvas + button{display:none !important;}
     footer{display:none;}
   }
 </style>
@@ -96,8 +112,8 @@
 
 <header>
   <div class="header-inner">
-    <div class="badge">E</div>
-    <div class="site-title">Employee<span> Form</span></div>
+    <img src="data:image/png;base64,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" alt="FormCraft logo" style="width:34px;height:34px;border-radius:8px;flex-shrink:0;">
+    <div class="site-title">Form<span>Craft</span></div>
   </div>
 </header>
 
@@ -108,6 +124,11 @@
 
   <div class="form-card">
     <div class="form-section-title">Personal Information</div>
+    <div class="field">
+      <label for="photo">Upload Picture</label>
+      <input type="file" id="photo" accept="image/*" onchange="previewPhoto(event)">
+      <img id="photoPreview" style="display:none;margin-top:10px;max-width:120px;border-radius:6px;border:1px solid var(--line);">
+    </div>
     <div class="row2">
       <div class="field">
         <label for="name">Full Name</label>
@@ -137,10 +158,10 @@
       <input type="text" id="permanentAddress" placeholder="Enter permanent address">
     </div>
     <div class="field">
-      <label for="photo">Upload Picture</label>
-      <input type="file" id="photo" accept="image/*" onchange="previewPhoto(event)">
-      <img id="photoPreview" style="display:none;margin-top:10px;max-width:120px;border-radius:6px;border:1px solid var(--line);">
+      <label for="eyeColor">Eye Color</label>
+      <input type="text" id="eyeColor" placeholder="e.g. Brown">
     </div>
+
 
     <div class="form-section-title">Employment Details</div>
     <div class="row2">
@@ -172,6 +193,10 @@
         <label for="experience">Experience</label>
         <input type="text" id="experience" placeholder="e.g. 3 years">
       </div>
+      <div class="field">
+        <label for="totalService">Total Service</label>
+        <input type="text" id="totalService" placeholder="e.g. 5 years 2 months">
+      </div>
     </div>
     <div class="field">
       <label for="department">Department</label>
@@ -179,6 +204,9 @@
     </div>
 
     <div class="form-section-title">HR Section</div>
+    <div class="field">
+      <label for="backend">Backend</label>
+      <input type="text" id="backend" placeholder="Enter backend/reference">
     <div class="row2">
       <div class="field">
         <label for="hrOfficer">HR Officer Name</label>
@@ -215,6 +243,13 @@
       <label for="documents">Attach CV / Documents</label>
       <input type="file" id="documents" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple onchange="listDocuments(event)">
       <div id="documentsList" style="margin-top:8px;font-size:13px;color:var(--muted);"></div>
+    </div>
+
+    <div class="form-section-title">Signature</div>
+    <div class="field">
+      <label>Sign Below</label>
+      <canvas id="signaturePad" width="600" height="150" style="width:100%;max-width:600px;height:150px;border:1px solid var(--line);border-radius:6px;background:#fff;touch-action:none;cursor:crosshair;"></canvas>
+      <button type="button" class="btn btn-reset" style="margin-top:8px;padding:8px 16px;font-size:12.5px;" onclick="clearSignature()">Clear Signature</button>
     </div>
 
     <div class="btn-row">
@@ -258,13 +293,4 @@
     const preview = document.getElementById('photoPreview');
     preview.src = '';
     preview.style.display = 'none';
-    document.getElementById('documentsList').innerHTML = '';
-  }
-</script>
-
-<footer>
-  This form is provided as a free tool for filling and printing employee details. · <a href="privacy-policy.html" style="color:inherit;">Privacy Policy</a> · <a href="contact.html" style="color:inherit;">Contact Us</a>
-</footer>
-
-</body>
-</html>
+    document.getElementById('documentsList'
