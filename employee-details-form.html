@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Details Form — Fill, Print & Save as PDF</title>
+<meta name="description" content="Fill out employee information and print or save it as a PDF instantly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0F2A43; --navy-deep:#081826; --paper:#F7F5EF; --card:#FFFFFF; --green:#01411C; --green-soft:#E8F0EA; --ink:#20262C; --muted:#6B7280; --line:#E3DFD3; --gold:#B98A2E;}
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter', sans-serif;line-height:1.6;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px;}
+  header{background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);color:#fff;padding:16px 0;border-bottom:3px solid var(--gold);}
+  .header-inner{display:flex;align-items:center;gap:10px;max-width:820px;margin:0 auto;padding:0 20px;flex-wrap:wrap;}
+  .badge{width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Fraunces', serif;font-weight:700;font-size:15px;flex-shrink:0;}
+  .site-title{font-family:'Fraunces', serif;font-weight:600;font-size:18px;}
+  .site-title span{color:var(--gold);}
+  nav{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;}
+  nav a{color:rgba(255,255,255,0.75);text-decoration:none;font-size:12.5px;}
+  nav a:hover{color:#fff;}
+  main{padding:44px 20px 60px;}
+  h1{font-family:'Fraunces', serif;font-weight:600;font-size:clamp(26px, 4vw, 34px);color:var(--navy-deep);margin:0 0 8px;}
+  .updated{font-family:'JetBrains Mono', monospace;font-size:11.5px;color:var(--gold);letter-spacing:0.5px;margin-bottom:22px;}
+  p.intro{font-size:14.5px;color:var(--muted);margin-bottom:26px;}
+
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px 24px;}
+  .form-section-title{font-family:'Fraunces', serif;font-weight:600;font-size:16px;color:var(--green);margin:22px 0 12px;padding-top:12px;border-top:1px solid var(--line);}
+  .form-section-title:first-child{margin-top:0;padding-top:0;border-top:none;}
+  .field{margin-bottom:14px;}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--navy-deep);margin-bottom:5px;}
+  input, select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:'Inter', sans-serif;font-size:14px;color:var(--ink);background:#fff;}
+  input:focus, select:focus{outline:none;border-color:var(--gold);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){.row2{grid-template-columns:1fr;}}
+
+  .btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+  .btn{font-family:'Inter', sans-serif;font-weight:600;font-size:14px;padding:12px 22px;border-radius:7px;border:none;cursor:pointer;}
+  .btn-print{background:var(--navy);color:#fff;}
+  .btn-print:hover{background:var(--navy-deep);}
+  .btn-reset{background:transparent;color:var(--muted);border:1px solid var(--line);}
+  .btn-reset:hover{background:#f2f0ea;}
+
+  .preview{display:none;}
+
+  footer{text-align:center;padding:36px 20px 50px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:20px;}
+
+  /* PRINT STYLES */
+  @media print{
+    #lockScreen{display:none !important;}
+    header, nav, .btn-row, .intro, .updated{display:none !important;}
+    body{background:#fff;}
+    main{padding:0;}
+    .form-card{border:none;padding:0;}
+    h1{font-size:22px;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:10px;}
+    .form-section-title{color:#000;border-top:1px solid #ccc;}
+    input, select{border:none;border-bottom:1px solid #999;border-radius:0;padding:6px 2px;background:transparent;-webkit-print-color-adjust:exact;}
+    input[type="file"]{display:none;}
+    #photoPreview{display:block !important;}
+    #documentsList{display:block !important;color:#000 !important;}
+    footer{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="lockScreen" style="position:fixed;inset:0;background:#0F2A43;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Inter',sans-serif;">
+  <div style="background:#fff;padding:36px 32px;border-radius:12px;max-width:320px;width:90%;text-align:center;">
+    <div style="width:48px;height:48px;background:#01411C;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:22px;">🔒</div>
+    <h2 style="font-family:'Fraunces',serif;font-size:18px;margin:0 0 6px;color:#0F2A43;">Enter PIN to Continue</h2>
+    <p style="font-size:12.5px;color:#6B7280;margin:0 0 18px;">This form is protected. Enter the 4-digit PIN to access it.</p>
+    <input type="password" id="pinInput" maxlength="4" inputmode="numeric" placeholder="••••" style="width:100%;text-align:center;font-size:22px;letter-spacing:8px;padding:12px;border:1px solid #E3DFD3;border-radius:8px;margin-bottom:10px;">
+    <div id="pinError" style="color:#B00020;font-size:12px;margin-bottom:10px;display:none;">Incorrect PIN, try again.</div>
+    <button onclick="checkPin()" style="width:100%;background:#0F2A43;color:#fff;border:none;padding:11px;border-radius:7px;font-weight:600;font-size:14px;cursor:pointer;">Unlock</button>
+  </div>
+</div>
+
+<script>
+  const CORRECT_PIN = "1234"; // change this to your own 4-digit PIN
+  function checkPin() {
+    const entered = document.getElementById('pinInput').value;
+    if (entered === CORRECT_PIN) {
+      document.getElementById('lockScreen').style.display = 'none';
+    } else {
+      document.getElementById('pinError').style.display = 'block';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pinInput').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') checkPin();
+    });
+  });
+</script>
+
+
+<header>
+  <div class="header-inner">
+    <div class="badge">E</div>
+    <div class="site-title">Employee<span> Form</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Employee Details Form</h1>
+  <div class="updated">FILL, PRINT OR SAVE AS PDF</div>
+  <p class="intro">Fill in the fields below, then click "Print / Save as PDF" — your browser's print dialog will open where you can choose "Save as PDF" as the destination.</p>
+
+  <div class="form-card">
+    <div class="form-section-title">Personal Information</div>
+    <div class="row2">
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Enter full name">
+      </div>
+      <div class="field">
+        <label for="fatherName">Father's Name</label>
+        <input type="text" id="fatherName" placeholder="Enter father's name">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="cnic">CNIC Number</label>
+        <input type="text" id="cnic" placeholder="XXXXX-XXXXXXX-X">
+      </div>
+      <div class="field">
+        <label for="age">Age</label>
+        <input type="number" id="age" placeholder="Enter age">
+      </div>
+    </div>
+    <div class="field">
+      <label for="presentAddress">Present Address</label>
+      <input type="text" id="presentAddress" placeholder="Enter present address">
+    </div>
+    <div class="field">
+      <label for="permanentAddress">Permanent Address</label>
+      <input type="text" id="permanentAddress" placeholder="Enter permanent address">
+    </div>
+    <div class="field">
+      <label for="photo">Upload Picture</label>
+      <input type="file" id="photo" accept="image/*" onchange="previewPhoto(event)">
+      <img id="photoPreview" style="display:none;margin-top:10px;max-width:120px;border-radius:6px;border:1px solid var(--line);">
+    </div>
+
+    <div class="form-section-title">Employment Details</div>
+    <div class="row2">
+      <div class="field">
+        <label for="company">Company Name</label>
+        <input type="text" id="company" placeholder="Enter company name">
+      </div>
+      <div class="field">
+        <label for="designation">Designation / Job Title</label>
+        <input type="text" id="designation" placeholder="Enter job title">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="employeeId">Employee ID</label>
+        <input type="text" id="employeeId" placeholder="Enter employee ID">
+      </div>
+      <div class="field">
+        <label for="scale">Employee Scale / Grade</label>
+        <input type="text" id="scale" placeholder="e.g. BPS-17 / Grade 5">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="joiningDate">Joining Date</label>
+        <input type="date" id="joiningDate">
+      </div>
+      <div class="field">
+        <label for="experience">Experience</label>
+        <input type="text" id="experience" placeholder="e.g. 3 years">
+      </div>
+    </div>
+    <div class="field">
+      <label for="department">Department</label>
+      <input type="text" id="department" placeholder="Enter department">
+    </div>
+
+    <div class="form-section-title">HR Section</div>
+    <div class="row2">
+      <div class="field">
+        <label for="hrOfficer">HR Officer Name</label>
+        <input type="text" id="hrOfficer" placeholder="Enter HR officer name">
+      </div>
+      <div class="field">
+        <label for="employmentStatus">Employment Status</label>
+        <select id="employmentStatus">
+          <option value="">Select status</option>
+          <option value="Permanent">Permanent</option>
+          <option value="Contract">Contract</option>
+          <option value="Probation">Probation</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="contact">Contact Number</label>
+        <input type="text" id="contact" placeholder="Enter contact number">
+      </div>
+      <div class="field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Enter email address">
+      </div>
+    </div>
+    <div class="field">
+      <label for="remarks">Remarks / Notes</label>
+      <input type="text" id="remarks" placeholder="Any additional remarks">
+    </div>
+
+    <div class="form-section-title">Documents</div>
+    <div class="field">
+      <label for="documents">Attach CV / Documents</label>
+      <input type="file" id="documents" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple onchange="listDocuments(event)">
+      <div id="documentsList" style="margin-top:8px;font-size:13px;color:var(--muted);"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <button class="btn btn-reset" onclick="resetForm()">Reset Form</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function previewPhoto(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('photoPreview');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  function listDocuments(event) {
+    const files = event.target.files;
+    const listDiv = document.getElementById('documentsList');
+    listDiv.innerHTML = '';
+    if (files.length) {
+      const ul = document.createElement('ul');
+      ul.style.margin = '0';
+      ul.style.paddingLeft = '18px';
+      Array.from(files).forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = f.name;
+        ul.appendChild(li);
+      });
+      listDiv.appendChild(ul);
+    }
+  }
+  function resetForm() {
+    document.querySelectorAll('input,select').forEach(el => el.value = '');
+    const preview = document.getElementById('photoPreview');
+    preview.src = '';
+    preview.style.display = 'none';
+    document.getElementById('documentsList').innerHTML = '';
+  }
+</script>
+
+<footer>
+  This form is provided as a free tool for filling and printing employee details. · <a href="privacy-policy.html" style="color:inherit;">Privacy Policy</a> · <a href="contact.html" style="color:inherit;">Contact Us</a>
+</footer>
+
+</body>
+</html>
